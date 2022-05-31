@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Danh sách phòng</title>
+    <link
+      rel="stylesheet"
+      th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="/styles/style.css" />
+    <link rel="stylesheet" href="/styles/queries.css" />
+  </head>
+  <body>
+    <div class="container-fluid p-0">
+      <div class="row myNavbar p-lg">
+        <div class="col-3 d-flex align-items-center">
+          <a href="/"> <img th:src="@{/img/logo.png}" alt="" /> </a>
+        </div>
+        <div class="col-9 col-sm-6 p-0">
+          <div class="main">
+            <ul class="d-flex">
+              <li class="d-flex align-items-center">
+                <a href="/">Trang chủ</a>
+              </li>
+              <li class="d-flex align-items-center">
+                <a href="/roomTypes">Phòng</a>
+              </li>
+              <li
+                sec:authorize="hasAnyRole('ROLE_MANAGER','ROLE_RECEPTIONIST')"
+                class="d-flex align-items-center"
+              >
+                <a href="/admin">
+                  <div>Admin</div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-12 col-sm-3 p-0">
+          <div class="menu pl-1 pr-1">
+            <ul class="d-flex justify-content-center justify-content-lg-end">
+              <li class="d-flex align-items-center">
+                <a
+                  th:if="${user!=null}"
+                  sec:authorize="!hasRole('ROLE_ADMIN')"
+                  href="/account"
+                >
+                  <p>Tài khoản</p>
+                </a>
+                <!-- <a
+                  th:if="${user!=null}"
+                  sec:authorize="!hasRole('ROLE_ADMIN')"
+                  href="/selectedRooms"
+                >
+                  <p>Phòng đã chọn</p>
+                </a> -->
+                <a th:if="${user==null}" href="/login">
+                  <div class="login">
+                    <div>
+                      <p class="m-0">
+                        <strong>Đăng nhập</strong>
+                      </p>
+                    </div>
+                  </div>
+                </a>
+                <form
+                  th:if="${user!=null}"
+                  method="POST"
+                  th:action="@{/logout}"
+                >
+                  <input type="submit" value="Logout" />
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid">
+      <div class="row p-0">
+        <div class="col-12 p-0">
+          <div class="space"></div>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid">
+      <div class="row pb-5">
+        <div class="col-12 p-0">
+          <div class="header grid">
+            <p class="title">THÔNG TIN CHI TIẾT</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid pb-5">
+      <div class="row">
+        <div class="col-8">
+          <p class="name" th:text="${roomType.roomTypeName}"></p>
+
+          <div class="mySliderContainer">
+            <div class="mySlider">
+              <div
+                id="carouselExampleControls"
+                class="carousel slide"
+                data-ride="carousel"
+              >
+                <div class="carousel-inner">
+                  <div
+                    th:each="img, index : ${roomType.roomTypeImages}"
+                    th:classappend="${index.index==0} ? 'carousel-item active' : 'carousel-item'"
+                  >
+                    <img
+                      class="d-block w-100"
+                      th:src="@{'/img/'+${img.roomTypeImg}}"
+                      alt=" slide"
+                    />
+                  </div>
+                </div>
+                <a
+                  class="carousel-control-prev"
+                  href="#carouselExampleControls"
+                  role="button"
+                  data-slide="prev"
+                >
+                  <span
+                    class="carousel-control-prev-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="sr-only">Previous</span>
+                </a>
+                <a
+                  class="carousel-control-next"
+                  href="#carouselExampleControls"
+                  role="button"
+                  data-slide="next"
+                >
+                  <span
+                    class="carousel-control-next-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="sr-only">Next</span>
+                </a>
+              </div>
+            </div>
+          </div>
+          <p th:text="${'Giá: '+roomType.price +'đ'}"></p>
+          <p th:text="${'Số người tối đa: '+roomType.maxCustomer}"></p>
+          <h6 class="mt-2">Mô tả:</h6>
+          <p th:text="${roomType.description}"></p>
+        </div>
+        <div class="col-4 booking">
+          <form th:object="${bookedRoom}" th:action="@{/booking}" method="get">
+            <input type="hidden" th:field="*{price}" />
+            <label for="checkIn"> Ngày đến</label>
+            <input
+              required
+              type="date"
+              th:field="*{checkIn}"
+              id="checkIn"
+              name="checkIn"
+            />
+            <br />
+            <label for="checkIn"> Ngày đi</label>
+            <input
+              type="date"
+              required
+              th:field="*{checkOut}"
+              id="checkOut"
+              name="checkOut"
+            />
+            <br />
+            <label for="people">Số người </label>
+            <input
+              required
+              th:field="*{numberOfPeople}"
+              type="number"
+              id="people"
+              name="people"
+            />
+            <br />
+            <p>Chọn dịch vụ:</p>
+
+            <div th:each="service : ${services}">
+              <input
+                name="services"
+                type="checkbox"
+                th:value="${service.serviceId}"
+              />
+              <strong th:text="${service.name}"></strong>
+              <span th:text="${service.price+'đ '+service.unit}"></span>
+            </div>
+            <input
+              type="hidden"
+              th:value="${roomType.roomTypeId}"
+              name="roomTypeId"
+            />
+            <p th:text="${error}" class="error"></p>
+            <button class="btn btn-primary" type="submit">Đặt phòng</button>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <p class="smallTitle">Các phòng khác</p>
+        </div>
+
+        <div
+          class="otherRoomTypes col-4"
+          th:each="roomType : ${otherRoomTypes}"
+        >
+          <a th:href="@{'/roomTypes/'+${roomType.roomTypeId}}" class="roomType">
+            <img
+              th:src="@{'/img/'+${roomType.roomTypeImages[0].roomTypeImg}}"
+              alt="roomType"
+            />
+            <p th:text="${roomType.roomTypeName}" class="name"></p>
+            <p th:text="${roomType.price}" class="price"></p>
+          </a>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

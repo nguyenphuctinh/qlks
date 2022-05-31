@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Trang ADMIN</title>
+<link rel="stylesheet"
+	th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css" />
+<link rel="stylesheet" href="/styles/style.css" />
+<link rel="stylesheet" href="/styles/queries.css" />
+</head>
+<body class="home">
+	<div class="container-fluid p-0">
+		<div class="row myNavbar p-lg">
+			<div class="col-3 d-flex align-items-center">
+				<a href="/"> <img th:src="@{/img/logo.png}" alt="" />
+				</a>
+			</div>
+			<div class="col-9 col-sm-6 p-0">
+				<div class="main">
+					<ul class="d-flex">
+						<li class="d-flex align-items-center"><a href="/">Trang
+								chủ</a></li>
+						<li class="d-flex align-items-center"><a href="/roomTypes">Phòng</a>
+						</li>
+						 <li
+                sec:authorize="hasAnyRole('ROLE_MANAGER','ROLE_RECEPTIONIST')"
+                class="d-flex align-items-center"
+              >
+                <a href="/admin">
+                  <div>Admin</div>
+                </a>
+              </li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-12 col-sm-3 p-0">
+				<div class="menu pl-1 pr-1">
+					<ul class="d-flex justify-content-center justify-content-lg-end">
+						<li class="d-flex align-items-center"><a
+							th:if="${user==null}" href="/login">
+								<div class="login">
+									<div>
+										<p class="m-0">
+											<strong>Đăng nhập</strong>
+										</p>
+									</div>
+								</div>
+						</a> <a th:if="${user!=null}" sec:authorize="!hasRole('ROLE_ADMIN')"
+							href="/account">
+								<p>Tài khoản</p>
+						</a>
+							<form th:if="${user!=null}" method="POST" th:action="@{/logout}">
+								<input type="submit" value="Logout" />
+							</form></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12">
+			<div class="space"></div>
+		</div>
+	</div>
+
+	<div class="container w-50">
+		<div class="row">
+			<div class="col-12">
+				<h1>Chỉnh sửa loại phòng</h1>
+
+
+				<form th:object="${roomType}" th:action="@{/admin/roomTypes/update}"
+					method="post" id="updateRoomType">
+					<input type="text" th:field="*{roomTypeId}" hidden /> <label
+						for="roomTypeName">Tên loại phòng:</label> <input type="text"
+						th:field="*{roomTypeName}" class="form-control"
+						placeholder="Tên loại phòng" />
+					<p class="validationError"
+						th:if="${#fields.hasErrors('roomTypeName')}"
+						th:errors="*{roomTypeName}"></p>
+					<label for="price">Giá mỗi đêm:</label> <input type="text"
+						th:field="*{price}" class="form-control" placeholder="Giá mỗi đêm" />
+					<p class="validationError" th:if="${#fields.hasErrors('price')}"
+						th:errors="*{price}"></p>
+					<label for="maxCustomer">Số người tối đa:</label> <input
+						type="number" th:field="*{maxCustomer}" class="form-control"
+						placeholder="Số người tối đa" />
+					<p class="validationError"
+						th:if="${#fields.hasErrors('maxCustomer')}"
+						th:errors="*{maxCustomer}"></p>
+					<label for="desc">Mô tả</label> <br />
+
+					<textarea th:field="*{description}" id="desc" name="desc" rows="4"
+						cols="50">
+
+</textarea>
+					<p class="validationError"
+						th:if="${#fields.hasErrors('description')}"
+						th:errors="*{description}"></p>
+					<br />
+
+					<div class="d-flex">
+						<div class=" mr-2"
+							th:each="img, itemStat : ${roomType.roomTypeImages}">
+							<input type="hidden"
+								th:field="*{roomTypeImages[__${itemStat.index}__]}" /> <img
+								class="w-100 mb-3" th:src="@{'/img/'+${img.roomTypeImg}}" />
+						</div>
+					</div>
+					<br>
+					<button type="submit" class="btn btn-primary">Cập nhật</button>
+					<a class="btn btn-secondary" href="/admin/roomTypeManagement"
+						role="button">Hủy</a>
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

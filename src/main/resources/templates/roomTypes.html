@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Danh sách loại phòng</title>
+    <link
+      rel="stylesheet"
+      th:href="@{webjars/bootstrap/css/bootstrap.min.css}"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="/styles/style.css" />
+    <link rel="stylesheet" href="/styles/queries.css" />
+  </head>
+  <body>
+    <div class="container-fluid p-0">
+      <div class="row myNavbar p-lg">
+        <div class="col-3 d-flex align-items-center">
+          <a href="/"> <img th:src="@{/img/logo.png}" alt="" /> </a>
+        </div>
+        <div class="col-9 col-sm-6 p-0">
+          <div class="main">
+            <ul class="d-flex">
+              <li class="d-flex align-items-center">
+                <a href="/">Trang chủ</a>
+              </li>
+              <li class="d-flex align-items-center">
+                <a href="/roomTypes">Phòng</a>
+              </li>
+               <li
+                sec:authorize="hasAnyRole('ROLE_MANAGER','ROLE_RECEPTIONIST')"
+                class="d-flex align-items-center"
+              >
+                <a href="/admin">
+                  <div>Admin</div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-12 col-sm-3 p-0">
+          <div class="menu pl-1 pr-1">
+            <ul class="d-flex justify-content-center justify-content-lg-end">
+              <li class="d-flex align-items-center">
+                <a
+                  th:if="${user!=null}"
+                  sec:authorize="!hasRole('ROLE_ADMIN')"
+                  href="/account"
+                >
+                  <p>Tài khoản</p>
+                </a>
+                <!-- <a
+                  th:if="${user!=null}"
+                  sec:authorize="!hasRole('ROLE_ADMIN')"
+                  href="/selectedRooms"
+                >
+                  <p>Phòng đã chọn</p> </a
+                > -->
+                <a th:if="${user==null}" href="/login">
+                  <div class="login">
+                    <div>
+                      <p class="m-0">
+                        <strong>Đăng nhập</strong>
+                      </p>
+                    </div>
+                  </div>
+                </a>
+                <form
+                  th:if="${user!=null}"
+                  method="POST"
+                  th:action="@{/logout}"
+                >
+                  <input type="submit" value="Logout" />
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid">
+      <div class="row p-0">
+        <div class="col-12 p-0">
+          <div class="space"></div>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid">
+      <div class="row pb-5">
+        <div class="col-12 p-0">
+          <div class="header grid">
+            <p class="title">DANH SÁCH LOẠI PHÒNG</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-4">
+          <form th:action="@{/roomTypes}" method="get">
+            <label for="checkIn"> Ngày đến</label>
+            <input type="date" id="checkIn" name="checkIn" /> <br />
+            <label for="checkIn"> Ngày đi</label>
+            <input type="date" id="checkOut" name="checkOut" /> <br />
+            <label for="numberOfPeople">Số người </label>
+            <input type="number" id="numberOfPeople" name="numberOfPeople" /> <br />
+          
+            <label for="price">Giá </label>
+           		<select
+						name="price">
+						
+							<option 
+						
+							value="Tăng dần">Tăng dần</option><option 
+							value="Giảm dần" >Giảm dần</option>
+						
+					</select> 
+            <br />
+            <button class='btn btn-primary' type="submit">Lọc</button>
+          </form>
+        </div>
+        <div class="col-8">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-6" th:each="roomType : ${roomTypes}">
+                <a
+                  th:href="@{'/roomTypes/'+${roomType.roomTypeId}}"
+                  class="roomType"
+                >
+                  <img
+                    th:src="@{'/img/'+${roomType.roomTypeImages[0].roomTypeImg}}"
+                    alt="roomType"
+                  />
+                  <p class="name" th:text="${roomType.roomTypeName}"></p>
+                  <p class="price" th:text="${roomType.price +' đ'}"></p>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

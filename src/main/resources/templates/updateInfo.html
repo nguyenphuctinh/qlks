@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Tài khoản</title>
+<link rel="stylesheet"
+	th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css" />
+<link rel="stylesheet" href="/styles/style.css" />
+<link rel="stylesheet" href="/styles/queries.css" />
+</head>
+<body class="home">
+	<div class="container-fluid p-0">
+		<div class="row myNavbar p-lg">
+			<div class="col-3 d-flex align-items-center">
+				<a href="/"> <img th:src="@{/img/logo.png}" alt="" />
+				</a>
+			</div>
+			<div class="col-9 col-sm-6 p-0">
+				<div class="main">
+					<ul class="d-flex">
+						<li class="d-flex align-items-center"><a href="/">Trang
+								chủ</a></li>
+						<li class="d-flex align-items-center"><a href="/roomTypes">Phòng</a>
+						</li>
+						 <li
+                sec:authorize="hasAnyRole('ROLE_MANAGER','ROLE_RECEPTIONIST')"
+                class="d-flex align-items-center"
+              >
+                <a href="/admin">
+                  <div>Admin</div>
+                </a>
+              </li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-12 col-sm-3 p-0">
+				<div class="menu pl-1 pr-1">
+					<ul class="d-flex justify-content-center justify-content-lg-end">
+						<li class="d-flex align-items-center"><a
+							th:if="${user!=null}" sec:authorize="!hasRole('ROLE_ADMIN')"
+							href="/account">
+								<p>Tài khoản</p>
+						</a> 
+					
+						
+						<a th:if="${user==null}" href="/login">
+								<div class="login">
+									<div>
+										<p class="m-0">
+											<strong>Đăng nhập</strong>
+										</p>
+									</div>
+								</div>
+						</a>
+							<form th:if="${user!=null}" method="POST" th:action="@{/logout}">
+								<input type="submit" value="Logout" />
+							</form></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12">
+			<div class="space"></div>
+		</div>
+	</div>
+
+	<div class="container-fluid admin">
+		<div class="row ">
+			<div class="col-12 col-sm-2 menuList">
+				<a href="/account/updateInfo">Cập nhật thông tin</a> <br /> <a
+					href="/account/changePassword">Đổi mật khẩu</a> <br />
+			</div>
+
+			<div class="col-12 col-sm-10 content ">
+				<div class="container w-50 ">
+					<div class="row">
+						<div class="col-12">
+						
+							<h3>Cập nhật thông tin</h3>
+							<p th:text="${message}" th:if="${message}" class="alert alert-success text-center">
+                     
+                    </p>
+							<form th:object="${user}" th:action="@{/account/updateInfo}"
+								method="post">
+								<input type="text" th:field="*{userId}" hidden="true" /> <label
+									for="fullName">Họ tên:</label> <input class="form-control"
+									type="text" name="fullName" th:field="*{fullName}" /> <label
+									for="phoneNumber">Số điện thoại:</label> <input
+									class="form-control" type="text" name="phoneNumber"
+									th:field="*{phoneNumber}" /> <label for="address">Địa
+									chỉ:</label> <input class="form-control" type="text" name="address"
+									th:field="*{address}" />
+								<button type="submit" class="btn btn-primary">Cập nhật</button>
+							</form>
+
+
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</body>
+</html>

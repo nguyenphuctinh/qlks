@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Trang chủ</title>
+    <link
+      rel="stylesheet"
+      th:href="@{webjars/bootstrap/css/bootstrap.min.css}"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="/styles/style.css" />
+    <link rel="stylesheet" href="/styles/queries.css" />
+  </head>
+  <body class="home">
+    <div class="container-fluid p-0">
+      <div class="row myNavbar p-lg">
+        <div class="col-3 d-flex align-items-center">
+          <a href="/"> <img th:src="@{/img/logo.png}" alt="" /> </a>
+        </div>
+        <div class="col-9 col-sm-6 p-0">
+          <div class="main">
+            <ul class="d-flex">
+              <li class="d-flex align-items-center">
+                <a href="/">Trang chủ</a>
+              </li>
+              <li class="d-flex align-items-center">
+                <a href="/roomTypes">Phòng</a>
+              </li>
+              <li
+                sec:authorize="hasAnyRole('ROLE_MANAGER','ROLE_RECEPTIONIST')"
+                class="d-flex align-items-center"
+              >
+                <a href="/admin">
+                  <div>Admin</div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-12 col-sm-3 p-0">
+          <div class="menu pl-1 pr-1">
+            <ul class="d-flex justify-content-center justify-content-lg-end">
+              <li class="d-flex align-items-center">
+                <a
+                  th:if="${user!=null}"
+                
+                  href="/account"
+                >
+                  <p>Tài khoản</p>
+                </a>
+	
+
+                <a th:if="${user==null}" href="/login">
+                  <div class="login">
+                    <div>
+                      <p class="m-0">
+                        <strong>Đăng nhập</strong>
+                      </p>
+                    </div>
+                  </div>
+                </a>
+                <form
+                  th:if="${user!=null}"
+                  method="POST"
+                  th:action="@{/logout}"
+                >
+                  <input type="submit" value="Logout" />
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="space"></div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12 blackBg"></div>
+      </div>
+      <div class="row pb-5">
+        <div class="col-12 p-0">
+          <div class="homeHeader-wrapper">
+            <img class="homeHeader__img" src="/img/para-001.jpg" alt="" />
+            <div class="homeHeader__titles">
+              <p class="homeHeader__title1">KHÁCH SẠN TMQ</p>
+              <p class="homeHeader__title2">ĐẶT PHÒNG KHÁCH SẠN</p>
+              <p class="homeHeader__title3">
+                Nguyễn Phúc Tĩnh - Nguyễn Duy Mạnh - Nguyễn Đình Quân
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 p-0 pb-4">
+          <p class="title">PHÒNG NỔI BẬT</p>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-6" th:each="roomType : ${roomTypes}">
+          <a th:href="@{'/roomTypes/'+${roomType.roomTypeId}}" class="roomType">
+            <img
+              th:src="@{'/img/'+${roomType.roomTypeImages[0].roomTypeImg}}"
+              alt="roomType"
+            />
+            <p th:text="${roomType.roomTypeName}" class="name"></p>
+            <p th:text="${roomType.price}" class="price"></p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

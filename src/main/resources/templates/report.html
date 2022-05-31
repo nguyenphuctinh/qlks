@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Trang ADMIN</title>
+<link rel="stylesheet"
+	th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css" />
+<link rel="stylesheet" href="/styles/style.css" />
+<link rel="stylesheet" href="/styles/queries.css" />
+</head>
+<body  onload="thongKe()" class="home">
+	<div class="container-fluid p-0">
+		<div class="row myNavbar p-lg">
+			<div class="col-3 d-flex align-items-center">
+				<a href="/"> <img th:src="@{/img/logo.png}" alt="" />
+				</a>
+			</div>
+			<div class="col-9 col-sm-6 p-0">
+				<div class="main">
+					<ul class="d-flex">
+						<li class="d-flex align-items-center"><a href="/">Trang
+								chủ</a></li>
+						<li class="d-flex align-items-center"><a href="/roomTypes">Phòng</a>
+						</li>
+						 <li
+                sec:authorize="hasAnyRole('ROLE_MANAGER','ROLE_RECEPTIONIST')"
+                class="d-flex align-items-center"
+              >
+                <a href="/admin">
+                  <div>Admin</div>
+                </a>
+              </li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-12 col-sm-3 p-0">
+				<div class="menu pl-1 pr-1">
+					<ul class="d-flex justify-content-center justify-content-lg-end">
+						<li class="d-flex align-items-center"><a
+							th:if="${user==null}" href="/login">
+								<div class="login">
+									<div>
+										<p class="m-0">
+											<strong>Đăng nhập</strong>
+										</p>
+									</div>
+								</div>
+						</a> <a th:if="${user!=null}" sec:authorize="!hasRole('ROLE_ADMIN')"
+							href="/account">
+								<p>Tài khoản</p>
+						</a>
+							<form th:if="${user!=null}" method="POST" th:action="@{/logout}">
+								<input type="submit" value="Logout" />
+							</form></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12">
+			<div class="space"></div>
+		</div>
+	</div>
+
+	<div class="container-fluid admin">
+		<div class="row ">
+			<div class="col-12 col-sm-2 menuList">
+				<a href="/admin/roomManagement">Quản lý phòng</a> <br /> <a
+					href="/admin/roomTypeManagement">Quản lý loại phòng</a> <br /> <a
+					href="/admin/userManagement">Quản lý người dùng</a> <br /><a
+					href="/admin/serviceManagement">Quản lý dịch vụ</a> <br /> <a
+					href="/admin/report">Thống kê</a>
+			</div>
+
+			<div class="col-12 col-sm-10 content">
+				<div th:each="monthlyRevenue : ${monthlyRevenues}">
+				<input type="hidden" th:value="${monthlyRevenue}"  class="monthlyRevenue" />
+					
+				</div>
+				
+	
+				<form th:action="@{'/admin/report'}" method="get" >
+				<div  class="d-flex flex-row">
+					<label for="startDate"> Từ</label> <input type="month"   th:value="${startDate}"
+						id="startDate" name="startDate" /> <br /> <label for="endDate">
+						Đến</label> <input type="month" id="endDate" name="endDate" th:value="${endDate}" /> <br />
+
+					<br />
+					<button  class="btn btn-primary " type="submit">Thống kê</button>
+</div>
+					</form>
+				
+<canvas id="myChart"></canvas>
+			</div>
+		</div>
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script>
+	var monthEls = document.getElementsByClassName("monthlyRevenue");
+	 console.log( Array.from(monthEls).map(item=>item.value));
+	
+	
+		let labels = [ ];
+		
+			for (let i = 0; i <= 3; i++) {
+				labels=[ ` ${addMonths(new Date(), -i).getMonth() + 1}/${addMonths(
+					new Date(),
+		            i
+		          ).getFullYear()}`,...labels]
+				
+			}
+		let data = {
+			labels : labels,
+			datasets : [ {
+				label : 'Thống kê doanh thu theo tháng',
+				backgroundColor : 'rgb(255, 99, 132)',
+				borderColor : 'rgb(255, 99, 132)',
+				data : [ 10000000, 10000000, 5000000, 2000000, 20000000, 30000000, 45000000 ],
+			} ]
+		};
+
+		let config = {
+			type : 'line',
+			data : data,
+			options: {
+		        scales: {
+		            y: {
+		                ticks: {
+		                   
+		                    callback: function(value, index, ticks) {
+		                        return `${value/1000000} tr`;
+		                    }
+		                }
+		            }
+		        }
+		    }
+		};
+		function getMonthDifference(startDate, endDate) {
+			  return (
+			    endDate.getMonth() -
+			    startDate.getMonth() +
+			    12 * (endDate.getFullYear() - startDate.getFullYear())
+			  );
+			}
+		 function addMonths(date, months) {
+			  var result = new Date(date);
+			  result.setMonth(result.getMonth() + months);
+			  return result;
+			}
+		const thongKe= ()=>{
+			
+			const startTime = document.getElementById('startDate').value
+			const endTime = document.getElementById('endDate').value
+			let dates=[]
+		    let monthCount = getMonthDifference(new Date(startTime), new Date(endTime));
+			for (let i = 0; i <= monthCount; i++) {
+				dates=[...dates, ` ${addMonths(startTime, i).getMonth() + 1}/${addMonths(
+		            startTime,
+		            i
+		          ).getFullYear()}`]
+				
+			}
+			labels=[...dates]
+			console.log(labels)
+			myChart.destroy();
+			data = {
+					labels : labels,
+					datasets : [ {
+						label : 'Thống kê doanh thu theo tháng',
+						backgroundColor : 'rgb(255, 99, 132)',
+						borderColor : 'rgb(255, 99, 132)',
+						data : [...Array.from(monthEls).map(item=>item.value)],
+					} ]
+				};
+			config = {
+					type : 'line',
+					data : data,
+					options: {
+				        scales: {
+				            y: {
+				                ticks: {
+				                 
+				                    callback: function(value, index, ticks) {
+				                        return  `${value/1000000} tr`;
+				                    }
+				                }
+				            }
+				        }
+				    }
+				};
+		 myChart = new Chart(document.getElementById('myChart'), config);
+		}
+	</script>
+	<script>
+		let myChart = new Chart(document.getElementById('myChart'), config);
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Danh sách booking</title>
+<link rel="stylesheet"
+	th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css" />
+<link rel="stylesheet" href="/styles/style.css" />
+<link rel="stylesheet" href="/styles/queries.css" />
+</head>
+<body class="home">
+	<div class="container-fluid p-0">
+		<div class="row myNavbar p-lg">
+			<div class="col-3 d-flex align-items-center">
+				<a href="/"> <img th:src="@{/img/logo.png}" alt="" />
+				</a>
+			</div>
+			<div class="col-9 col-sm-6 p-0">
+				<div class="main">
+					<ul class="d-flex">
+						<li class="d-flex align-items-center"><a href="/">Trang
+								chủ</a></li>
+						<li class="d-flex align-items-center"><a href="/roomTypes">Phòng</a>
+						</li>
+						 <li
+                sec:authorize="hasAnyRole('ROLE_MANAGER','ROLE_RECEPTIONIST')"
+                class="d-flex align-items-center"
+              >
+                <a href="/admin">
+                  <div>Admin</div>
+                </a>
+              </li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-12 col-sm-3 p-0">
+				<div class="menu pl-1 pr-1">
+					<ul class="d-flex justify-content-center justify-content-lg-end">
+						<li class="d-flex align-items-center"><a
+							th:if="${user==null}" href="/login">
+								<div class="login">
+									<div>
+										<p class="m-0">
+											<strong>Đăng nhập</strong>
+										</p>
+									</div>
+								</div>
+						</a> <a th:if="${user!=null}" href="/account">
+								<p>Tài khoản</p>
+						</a>
+							<form th:if="${user!=null}" method="POST" th:action="@{/logout}">
+								<input type="submit" value="Logout" />
+							</form></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12">
+			<div class="space"></div>
+		</div>
+	</div>
+
+	<div class="container-fluid admin">
+		<div class="row">
+
+
+			<div class="col-12 content">
+				<div class="container w-50 ">
+					<div class="row">
+						<div class="col-6">
+							<p>
+								<strong>Ngày đặt phòng</strong>
+							</p>
+							<p>
+								<strong>Tên khách hàng</strong>
+							</p>
+							<p>
+								<strong>Số điện thoại</strong>
+							</p>
+							<p>
+								<strong>Địa chỉ</strong>
+							</p>
+							<p>
+								<strong>Ngày check in</strong>
+							</p>
+							<p>
+								<strong>Ngày check out</strong>
+							</p>
+							<p>
+								<strong>Phòng</strong>
+							</p>
+							<p>
+								<strong>Loại phòng</strong>
+							</p>
+							<p>
+								<strong>Dịch vụ đã chọn</strong>
+							</p>
+							<p>
+								<strong>Tổng số tiền</strong>
+							</p>
+							<p>
+								<strong>Trạng thái</strong>
+							</p>
+						</div>
+						<div class="col-6">
+							<p th:text=${booking.bookingDate}></p>
+							<p th:text=${booking.user.fullName}></p>
+							<p th:text=${booking.user.phoneNumber}></p>
+							<p th:text=${booking.user.address}></p>
+							<p th:text=${booking.bookedRooms[0].checkIn}></p>
+							<p th:text=${booking.bookedRooms[0].checkOut}></p>
+							<p th:text=${booking.bookedRooms[0].room.roomName}></p>
+							<p th:text=${booking.bookedRooms[0].room.roomType.roomTypeName}></p>
+							<p>
+							<div class="d-flex">
+								<span th:if="${booking.bookedRooms[0].usedServices.size()==0}">Không
+									có dv nào</span>
+								<div class="mr-2"
+									th:each="usedService: ${booking.bookedRooms[0].usedServices}">
+									<span th:text="${usedService.service.name}"></span>
+								</div>
+							</div>	
+							</p>
+<p th:text="${booking.calculateBookingPrice}+' đ'"></p>
+
+							<p class="text-warning"
+								th:if="${booking.bookedRooms[0].isCheckIn}==0">Chưa check in</p>
+							<p class="text-success"
+								th:if="${booking.bookedRooms[0].isCheckIn}!=0">Đã check in</p>
+						</div>
+					</div>
+				</div>
+
+
+
+
+
+
+
+			</div>
+		</div>
+	</div>
+</body>
+</html>

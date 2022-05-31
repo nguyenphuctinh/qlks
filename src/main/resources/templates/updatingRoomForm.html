@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Trang ADMIN</title>
+<link rel="stylesheet"
+	th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css" />
+<link rel="stylesheet" href="/styles/style.css" />
+<link rel="stylesheet" href="/styles/queries.css" />
+</head>
+<body class="home">
+	<div class="container-fluid p-0">
+		<div class="row myNavbar p-lg">
+			<div class="col-3 d-flex align-items-center">
+				<a href="/"> <img th:src="@{/img/logo.png}" alt="" />
+				</a>
+			</div>
+			<div class="col-9 col-sm-6 p-0">
+				<div class="main">
+					<ul class="d-flex">
+						<li class="d-flex align-items-center"><a href="/">Trang
+								chủ</a></li>
+						<li class="d-flex align-items-center"><a href="/roomTypes">Phòng</a>
+						</li>
+						 <li
+                sec:authorize="hasAnyRole('ROLE_MANAGER','ROLE_RECEPTIONIST')"
+                class="d-flex align-items-center"
+              >
+                <a href="/admin">
+                  <div>Admin</div>
+                </a>
+              </li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-12 col-sm-3 p-0">
+				<div class="menu pl-1 pr-1">
+					<ul class="d-flex justify-content-center justify-content-lg-end">
+						<li class="d-flex align-items-center"><a
+							th:if="${user==null}" href="/login">
+								<div class="login">
+									<div>
+										<p class="m-0">
+											<strong>Đăng nhập</strong>
+										</p>
+									</div>
+								</div>
+						</a> <a th:if="${user!=null}" sec:authorize="!hasRole('ROLE_ADMIN')"
+							href="/account">
+								<p>Tài khoản</p>
+						</a>
+							<form th:if="${user!=null}" method="POST" th:action="@{/logout}">
+								<input type="submit" value="Logout" />
+							</form></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12">
+			<div class="space"></div>
+		</div>
+	</div>
+
+	<div class="container w-50">
+		<div class="row">
+			<div class="col-12">
+				<h1>Chỉnh sửa phòng</h1>
+
+
+				<form  
+ 						th:object="${room}"
+ 						th:action="@{/admin/rooms/update}" 
+ 						method="post"
+					id="addNewRoom">
+					<input type="hidden" th:field="*{roomId}" />
+					<p class="alert alert-danger text-center"
+                       th:if="${#fields.hasErrors('roomName')}"
+                       th:errors="*{roomName}">roomName Error</p>
+					<label for="roomName">Tên phòng:</label>
+					<input type="text" th:field="*{roomName}" class="form-control"
+						placeholder="Tên phòng" /> 
+						<label for="roomType">Loại phòng:</label>
+						<br />
+						 <select
+						th:field="*{roomType}">
+						<option th:each="roomType : ${roomTypes}"
+							th:value="${roomType.roomTypeId}" th:text="${roomType.roomTypeName}"></option>
+					</select> <br />
+					<button type="submit" class="btn btn-primary">Đăng</button>
+
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
