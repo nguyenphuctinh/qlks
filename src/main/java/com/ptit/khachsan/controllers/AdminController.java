@@ -88,66 +88,6 @@ public class AdminController {
 
 		return "roomManagement";
 	}
-
-	@GetMapping("receptionist")
-	public String showReceptionist(Model model) {
-
-		ArrayList<Booking> bookings = bookingService.getAllBookings();
-		model.addAttribute("bookings", bookings);
-		return "receptionist";
-
-	}
-
-	@GetMapping("roomManagement")
-	public String showRoomManagement(Model model) {
-
-		ArrayList<Room> rooms = roomService.getAllRooms();
-		model.addAttribute("rooms", rooms);
-
-		return "roomManagement";
-	}
-
-	@GetMapping("room/update/{id}")
-	public String showUpdateRoom(Model model, @PathVariable String id) {
-
-		Room room = roomService.findById(Integer.parseInt(id));
-		if (room == null) {
-			return "redirect:/admin/roomManagement";
-		}
-
-		ArrayList<RoomType> roomTypes = roomTypeService.getAllRoomTypes();
-		
-		model.addAttribute("roomTypes", roomTypes);
-		model.addAttribute("room", room);
-		return "updatingRoomForm";
-	}
-	@PostMapping("rooms/update")
-	public String updateRoom(Model model, @Valid Room room, Errors errors) {
-		if (errors.hasErrors()) {
-
-			return "updatingRoomForm";
-		}
-		roomService.save(room);
-		return "redirect:/admin/roomManagement";
-	}
-	@GetMapping("room/delete/{id}")
-	public String showDeleteRoom(Model model, @PathVariable String id) {
-		Room room  = roomService.findById(Integer.parseInt(id));
-		if (room == null) {
-			return "redirect:/admin/roomManagement";
-		}
-		model.addAttribute("room", room);
-		return "deleteRoomForm";
-	}
-	@PostMapping("room/delete/{id}")
-	public String deleteRoom(Model model, @PathVariable String id) {
-		Room room  = roomService.findById(Integer.parseInt(id));
-		if (room == null) {
-			return "redirect:/admin/roomManagement";
-		}
-		roomService.delete(room);
-		return "redirect:/admin/roomManagement";
-	}
 	@GetMapping("roomTypeManagement")
 	public String showRoomTypeManagement(Model model) {
 
@@ -157,141 +97,6 @@ public class AdminController {
 		
 		return "roomTypeManagement";
 	}
-
-	@GetMapping("serviceManagement")
-	public String showServiceManagement(Model model) {
-
-		ArrayList<Service> services = serviceService.getAllServices();
-		model.addAttribute("services", services);
-		return "serviceManagement";
-	}
-
-	@GetMapping("userManagement")
-	public String userManagement(Model model) {
-
-		ArrayList<User> users = userService.getAllUsers();
-		model.addAttribute("users", users);
-		return "userManagement";
-	}
-
-	@GetMapping("users/update/{id}")
-	public String showUpdateUser(Model model, @PathVariable String id) {
-		User selectedUser = userService.findById(Integer.parseInt(id));
-		System.out.println(selectedUser);
-		if (selectedUser == null) {
-			return "redirect:/admin/userManagement";
-		}
-		model.addAttribute("selectedUser", selectedUser);
-		return "updatingUserForm";
-	}
-
-	@PostMapping("users/update")
-	public String updateUser(Model model, User selectedUser) {
-		User updatedUser = userService.findById(selectedUser.getUserId());
-		updatedUser.setRole(selectedUser.getRole());
-		userService.save(updatedUser);
-		return "redirect:/admin/userManagement";
-	}
-
-	@GetMapping("report")
-	public String showReport(Model model, @RequestParam(required = false) String startDate,
-			@RequestParam(required = false) String endDate) {
-
-		if (startDate == null) {
-			Date tmp = new Date();
-			tmp.setMonth(1);
-
-			startDate = new SimpleDateFormat("yyyy-MM").format(tmp);
-		}
-		if (endDate == null) {
-			Date tmp = new Date();
-
-			endDate = new SimpleDateFormat("yyyy-MM").format(tmp);
-		}
-		DateFormat formater = new SimpleDateFormat("yyyy-MM");
-
-		Calendar beginCalendar = Calendar.getInstance();
-		Calendar finishCalendar = Calendar.getInstance();
-		ArrayList<String> months = new ArrayList<String>();
-		ArrayList<Long> monthlyRevenues = new ArrayList<>();
-		try {
-			beginCalendar.setTime(formater.parse(startDate));
-			finishCalendar.setTime(formater.parse(endDate));
-			while (true) {
-				// add one month to date per loop
-				String date = formater.format(beginCalendar.getTime()).toUpperCase();
-
-				months.add(date);
-				StringTokenizer stz = new StringTokenizer(date, "-");
-				ArrayList<BookedRoom> checkedOutBookedRooms = bookedRoomService.selectCheckedOutBookedRooms(
-						Integer.parseInt(stz.nextToken()), Integer.parseInt(stz.nextToken()));
-				long revenue = 0;
-				for (BookedRoom checkedOutBookedRoom : checkedOutBookedRooms) {
-					System.out.println(checkedOutBookedRoom);
-					revenue += checkedOutBookedRoom.calculateTotalPriceOfUsedServices()
-							+ checkedOutBookedRoom.getPrice();
-				}
-
-				monthlyRevenues.add(revenue);
-				if (beginCalendar.after(finishCalendar)) {
-					break;
-				}
-				beginCalendar.add(Calendar.MONTH, 1);
-			}
-			ArrayList<RoomType> roomTypes = roomTypeService.getAllRoomTypes();
-			model.addAttribute("roomTypes", roomTypes);
-			model.addAttribute("months", months);
-			model.addAttribute("monthlyRevenues", monthlyRevenues);
-			model.addAttribute("startDate", startDate);
-			model.addAttribute("endDate", endDate);
-			return "report";
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "redirect:/";
-		}
-	}
-
-	@GetMapping("services/add")
-	public String showAddService(Model model) {
-
-		model.addAttribute("service", new Service());
-
-		return "addingServiceForm";
-	}
-
-	@PostMapping("services/add")
-	public String addService(@Valid Service service, Errors errors) {
-		if (errors.hasErrors()) {
-
-			return "addingServiceForm";
-		}
-		serviceService.save(service);
-		return "redirect:/admin/serviceManagement";
-	}
-
-	@GetMapping("rooms/add")
-	public String showAddRoom(Model model) {
-		ArrayList<RoomType> roomTypes = roomTypeService.getAllRoomTypes();
-		model.addAttribute("roomTypes", roomTypes);
-		model.addAttribute("room", new Room());
-
-		return "addingRoomForm";
-	}
-
-	@PostMapping("rooms/add")
-	public String addRoom(@Valid Room room, Errors errors, Model model) {
-		if (errors.hasErrors()) {
-			ArrayList<RoomType> roomTypes = roomTypeService.getAllRoomTypes();
-			model.addAttribute("roomTypes", roomTypes);
-			System.out.println("error");
-			return "addingRoomForm";
-		}
-		System.out.println("ok");
-		roomService.save(room);
-		return "redirect:/admin/roomManagement";
-	}
-
 	@PostMapping("roomTypes/add")
 	public String addRoom(Model model, @Valid RoomType roomType, Errors errors,
 			@RequestParam("images") MultipartFile[] multipartFiles) throws IOException {
@@ -365,6 +170,203 @@ public class AdminController {
 		roomTypeService.delete(roomType);
 		return "redirect:/admin/roomTypeManagement";
 	}
+	@GetMapping("report")
+	public String showReport(Model model, @RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String endDate) {
+
+		if (startDate == null) {
+			Date tmp = new Date();
+			tmp.setMonth(1);
+
+			startDate = new SimpleDateFormat("yyyy-MM").format(tmp);
+		}
+		if (endDate == null) {
+			Date tmp = new Date();
+
+			endDate = new SimpleDateFormat("yyyy-MM").format(tmp);
+		}
+		DateFormat formater = new SimpleDateFormat("yyyy-MM");
+
+		Calendar beginCalendar = Calendar.getInstance();
+		Calendar finishCalendar = Calendar.getInstance();
+		ArrayList<String> months = new ArrayList<String>();
+		ArrayList<Long> monthlyRevenues = new ArrayList<>();
+		try {
+			beginCalendar.setTime(formater.parse(startDate));
+			finishCalendar.setTime(formater.parse(endDate));
+			while (true) {
+				// add one month to date per loop
+				String date = formater.format(beginCalendar.getTime()).toUpperCase();
+
+				months.add(date);
+				StringTokenizer stz = new StringTokenizer(date, "-");
+				ArrayList<BookedRoom> checkedOutBookedRooms = bookedRoomService.selectCheckedOutBookedRooms(
+						Integer.parseInt(stz.nextToken()), Integer.parseInt(stz.nextToken()));
+				long revenue = 0;
+				for (BookedRoom checkedOutBookedRoom : checkedOutBookedRooms) {
+					System.out.println(checkedOutBookedRoom);
+					revenue += checkedOutBookedRoom.calculateTotalPriceOfUsedServices()
+							+ checkedOutBookedRoom.getPrice();
+				}
+
+				monthlyRevenues.add(revenue);
+				if (beginCalendar.after(finishCalendar)) {
+					break;
+				}
+				beginCalendar.add(Calendar.MONTH, 1);
+			}
+			ArrayList<RoomType> roomTypes = roomTypeService.getAllRoomTypes();
+			model.addAttribute("roomTypes", roomTypes);
+			model.addAttribute("months", months);
+			model.addAttribute("monthlyRevenues", monthlyRevenues);
+			model.addAttribute("startDate", startDate);
+			model.addAttribute("endDate", endDate);
+			return "report";
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "redirect:/";
+		}
+	}
+	@GetMapping("receptionist")
+	public String showReceptionist(Model model) {
+
+		ArrayList<Booking> bookings = bookingService.getAllBookings();
+		model.addAttribute("bookings", bookings);
+		return "receptionist";
+
+	}
+
+	@GetMapping("roomManagement")
+	public String showRoomManagement(Model model) {
+
+		ArrayList<Room> rooms = roomService.getAllRooms();
+		model.addAttribute("rooms", rooms);
+
+		return "roomManagement";
+	}
+
+	@GetMapping("room/update/{id}")
+	public String showUpdateRoom(Model model, @PathVariable String id) {
+
+		Room room = roomService.findById(Integer.parseInt(id));
+		if (room == null) {
+			return "redirect:/admin/roomManagement";
+		}
+
+		ArrayList<RoomType> roomTypes = roomTypeService.getAllRoomTypes();
+		
+		model.addAttribute("roomTypes", roomTypes);
+		model.addAttribute("room", room);
+		return "updatingRoomForm";
+	}
+	@PostMapping("rooms/update")
+	public String updateRoom(Model model, @Valid Room room, Errors errors) {
+		if (errors.hasErrors()) {
+
+			return "updatingRoomForm";
+		}
+		roomService.save(room);
+		return "redirect:/admin/roomManagement";
+	}
+	@GetMapping("room/delete/{id}")
+	public String showDeleteRoom(Model model, @PathVariable String id) {
+		Room room  = roomService.findById(Integer.parseInt(id));
+		if (room == null) {
+			return "redirect:/admin/roomManagement";
+		}
+		model.addAttribute("room", room);
+		return "deleteRoomForm";
+	}
+	@PostMapping("room/delete/{id}")
+	public String deleteRoom(Model model, @PathVariable String id) {
+		Room room  = roomService.findById(Integer.parseInt(id));
+		if (room == null) {
+			return "redirect:/admin/roomManagement";
+		}
+		roomService.delete(room);
+		return "redirect:/admin/roomManagement";
+	}
+	
+
+	@GetMapping("serviceManagement")
+	public String showServiceManagement(Model model) {
+
+		ArrayList<Service> services = serviceService.getAllServices();
+		model.addAttribute("services", services);
+		return "serviceManagement";
+	}
+
+	@GetMapping("userManagement")
+	public String userManagement(Model model) {
+
+		ArrayList<User> users = userService.getAllUsers();
+		model.addAttribute("users", users);
+		return "userManagement";
+	}
+
+	@GetMapping("users/update/{id}")
+	public String showUpdateUser(Model model, @PathVariable String id) {
+		User selectedUser = userService.findById(Integer.parseInt(id));
+		System.out.println(selectedUser);
+		if (selectedUser == null) {
+			return "redirect:/admin/userManagement";
+		}
+		model.addAttribute("selectedUser", selectedUser);
+		return "updatingUserForm";
+	}
+
+	@PostMapping("users/update")
+	public String updateUser(Model model, User selectedUser) {
+		User updatedUser = userService.findById(selectedUser.getUserId());
+		updatedUser.setRole(selectedUser.getRole());
+		userService.save(updatedUser);
+		return "redirect:/admin/userManagement";
+	}
+
+	
+
+	@GetMapping("services/add")
+	public String showAddService(Model model) {
+
+		model.addAttribute("service", new Service());
+
+		return "addingServiceForm";
+	}
+
+	@PostMapping("services/add")
+	public String addService(@Valid Service service, Errors errors) {
+		if (errors.hasErrors()) {
+
+			return "addingServiceForm";
+		}
+		serviceService.save(service);
+		return "redirect:/admin/serviceManagement";
+	}
+
+	@GetMapping("rooms/add")
+	public String showAddRoom(Model model) {
+		ArrayList<RoomType> roomTypes = roomTypeService.getAllRoomTypes();
+		model.addAttribute("roomTypes", roomTypes);
+		model.addAttribute("room", new Room());
+
+		return "addingRoomForm";
+	}
+
+	@PostMapping("rooms/add")
+	public String addRoom(@Valid Room room, Errors errors, Model model) {
+		if (errors.hasErrors()) {
+			ArrayList<RoomType> roomTypes = roomTypeService.getAllRoomTypes();
+			model.addAttribute("roomTypes", roomTypes);
+			System.out.println("error");
+			return "addingRoomForm";
+		}
+		System.out.println("ok");
+		roomService.save(room);
+		return "redirect:/admin/roomManagement";
+	}
+
+	
 
 	@GetMapping("services/update/{id}")
 	public String showUpdateService(Model model, @PathVariable String id) {

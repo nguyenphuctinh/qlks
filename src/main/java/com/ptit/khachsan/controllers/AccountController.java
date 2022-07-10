@@ -75,8 +75,6 @@ public class AccountController {
 	@PostMapping("changePassword")
 	public String processChangingPassword(Model model, @Valid ChangePasswordForm form, Errors errors) {
 		if (errors.hasErrors()) {
-
-			
 			return "changePassword";
 		}
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

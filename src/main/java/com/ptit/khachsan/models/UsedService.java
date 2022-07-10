@@ -28,7 +28,6 @@ public class UsedService {
 	private int usedServiceId;
 	@NotNull
 	private int  price;
-	
 	@ToString.Exclude
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "booked_room_id", insertable = false, updatable = false)
@@ -37,11 +36,9 @@ public class UsedService {
 	@JoinColumn(name = "service_id", referencedColumnName = "id")
 	private Service service;
 	public UsedService() {
-		
 	}
 	public UsedService( int price, Service service) {
 		super();
-		
 		this.price = price;
 		this.service = service;
 	}

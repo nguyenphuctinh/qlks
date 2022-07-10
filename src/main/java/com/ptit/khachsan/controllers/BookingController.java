@@ -71,10 +71,8 @@ public class BookingController {
 
 	@PostMapping
 	public String book(Model model, @ModelAttribute Booking booking) {
-
 		booking.setBookingDate(new Date());
 		bookingService.save(booking);
-
 		model.addAttribute("message", "Đặt phòng thành công!");
 		return "booking";
 	}
@@ -114,10 +112,8 @@ public class BookingController {
 			ra.addFlashAttribute("error", "Hiện tại không còn phòng trong thời gian này!");
 			return "redirect:/roomTypes/" + roomTypeId;
 		}
-		
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User user = ((User) principal);
-
 		booking.setUser(user);
 		ArrayList<UsedService> usedServices = new ArrayList<>();
 		if(services!=null) {
@@ -125,7 +121,6 @@ public class BookingController {
 				usedServices.add(new UsedService( service.getPrice(), service));
 			}
 		}
-		
 		bookedRoom.setRoom(availableRooms.get(0));
 		bookedRoom.setUsedServices(usedServices);
 		ArrayList<BookedRoom> bookedRooms = new ArrayList<BookedRoom>();
